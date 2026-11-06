@@ -1,0 +1,28 @@
+services:
+  api:
+    build:
+      context: ./lab
+      dockerfile: Dockerfile
+    image: devops-student:v1
+    environment:
+      ROLE: api
+    volumes:
+      - requests:/data
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8000/health')"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+
+  web:
+    image: devops-student:v1
+    environment:
+      ROLE: web
+    ports:
+      - "127.0.0.1:8080:8000"
+    depends_on:
+      api:
+        condition: service_healthy
+
+volumes:
+  requests:
